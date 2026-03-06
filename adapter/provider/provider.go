@@ -99,6 +99,10 @@ func (bp *baseProvider) RegisterHealthCheckTask(url string, expectedStatus utils
 	bp.healthCheck.registerHealthCheckTask(url, expectedStatus, filter, interval)
 }
 
+func (bp *baseProvider) RegisterAfterHealthCheckCallback(fn func()) {
+	bp.healthCheck.registerAfterCheckCallback(fn)
+}
+
 func (bp *baseProvider) setProxies(proxies []C.Proxy) {
 	bp.mutex.Lock()
 	defer bp.mutex.Unlock()

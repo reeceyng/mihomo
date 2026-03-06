@@ -39,6 +39,7 @@ type HealthCheck struct {
 	lastTouch      atomic.TypedValue[time.Time]
 	singleDo       *singledo.Single[struct{}]
 	timeout        time.Duration
+	afterCheck     []func()
 }
 
 func (hc *HealthCheck) process() {
@@ -116,6 +117,12 @@ func (hc *HealthCheck) auto() bool {
 	return hc.interval != 0
 }
 
+func (hc *HealthCheck) registerAfterCheckCallback(fn func()) {
+	hc.mu.Lock()
+	defer hc.mu.Unlock()
+	hc.afterCheck = append(hc.afterCheck, fn)
+}
+
 func (hc *HealthCheck) touch() {
 	hc.lastTouch.Store(time.Now())
 }
@@ -143,6 +150,13 @@ func (hc *HealthCheck) check() {
 		}
 		_ = b.Wait()
 		log.Debugln("Finish A Health Checking {%s}", id)
+		hc.mu.Lock()
+		cbs := make([]func(), len(hc.afterCheck))
+		copy(cbs, hc.afterCheck)
+		hc.mu.Unlock()
+		for _, cb := range cbs {
+			cb()
+		}
 		return struct{}{}, nil
 	})
 }

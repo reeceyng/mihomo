@@ -24,6 +24,7 @@ func groupRouter() http.Handler {
 		r.Use(parseProxyName, findProxyByName)
 		r.Get("/", getGroup)
 		r.Get("/delay", getGroupDelay)
+		r.Get("/stats", getSmartGroupStats)
 	})
 	return r
 }
@@ -48,6 +49,17 @@ func getGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	render.Status(r, http.StatusNotFound)
 	render.JSON(w, r, ErrNotFound)
+}
+
+func getSmartGroupStats(w http.ResponseWriter, r *http.Request) {
+	proxy := r.Context().Value(CtxKeyProxy).(C.Proxy)
+	smart, ok := proxy.Adapter().(*outboundgroup.Smart)
+	if !ok {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, ErrNotFound)
+		return
+	}
+	render.JSON(w, r, smart.SmartStats())
 }
 
 func getGroupDelay(w http.ResponseWriter, r *http.Request) {

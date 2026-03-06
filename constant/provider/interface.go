@@ -83,6 +83,7 @@ type ProxyProvider interface {
 	HealthCheck()
 	Version() uint32
 	RegisterHealthCheckTask(url string, expectedStatus utils.IntRanges[uint16], filter string, interval uint)
+	RegisterAfterHealthCheckCallback(fn func())
 	HealthCheckURL() string
 }
 

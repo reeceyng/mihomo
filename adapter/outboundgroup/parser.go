@@ -157,7 +157,14 @@ func ParseProxyGroup(config map[string]any, proxyMap map[string]C.Proxy, provide
 		// select don't need auto health check
 		if groupOption.Type != "select" && groupOption.Type != "relay" {
 			if groupOption.Interval == 0 {
-				groupOption.Interval = 300
+				if groupOption.Type == "smart" {
+					groupOption.Interval = 180
+				} else {
+					groupOption.Interval = 300
+				}
+			}
+			if groupOption.Type == "smart" && groupOption.TestTimeout == 0 {
+				groupOption.TestTimeout = 3000
 			}
 		}
 
@@ -177,6 +184,8 @@ func ParseProxyGroup(config map[string]any, proxyMap map[string]C.Proxy, provide
 	case "url-test":
 		opts := parseURLTestOption(config)
 		group = NewURLTest(groupOption, providers, opts...)
+	case "smart":
+		group = NewSmart(groupOption, providers, config)
 	case "select":
 		group = NewSelector(groupOption, providers)
 	case "fallback":
