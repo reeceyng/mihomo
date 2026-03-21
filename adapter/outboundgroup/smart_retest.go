@@ -108,7 +108,7 @@ func (s *Smart) selectiveRetest() {
 		log.Debugln("[Smart] %s selective retest: %d/%d proxies", s.Name(), len(candidates), len(proxies))
 
 		// M4: guard against TestTimeout=0 which would make the context expire immediately.
-		testTimeout := s.TestTimeout
+		testTimeout := s.testTimeout
 		if testTimeout <= 0 {
 			testTimeout = 5000
 		}
@@ -242,7 +242,7 @@ func (s *Smart) triggerNodeRetest(proxyName string) {
 
 	go func() {
 		ctx, cancel := context.WithTimeout(context.Background(),
-			time.Duration(s.TestTimeout)*time.Millisecond)
+			time.Duration(s.testTimeout)*time.Millisecond)
 		defer cancel()
 
 		expectedStatus := s.expectedStatusRanges()

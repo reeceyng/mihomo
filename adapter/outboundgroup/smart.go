@@ -62,8 +62,6 @@ type Smart struct {
 	expectedStatus string
 	tolerance      float64
 	disableUDP     bool
-	Hidden         bool
-	Icon           string
 	fastNode       C.Proxy
 	fastNodeMu     sync.RWMutex
 	fastSingle     *singledo.Single[C.Proxy]
@@ -293,13 +291,13 @@ func NewSmart(option *GroupCommonOption, providers []P.ProxyProvider, config map
 			TestTimeout:    option.TestTimeout,
 			MaxFailedTimes: option.MaxFailedTimes,
 			Providers:      providers,
+			Hidden:         option.Hidden,
+			Icon:           option.Icon,
 		}),
 		fastSingle:     singledo.NewSingle[C.Proxy](time.Second * 3),
 		disableUDP:     option.DisableUDP,
 		testUrl:        option.URL,
 		expectedStatus: option.ExpectedStatus,
-		Hidden:         option.Hidden,
-		Icon:           option.Icon,
 		tolerance:      0.08,
 		alphaUp:        0.3,
 		alphaDown:      0.18,
